@@ -13,8 +13,8 @@ body {
 
 .square {
     position: absolute;
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 60px;
     background-color: #4CAF50;
     color: white;
     display: flex;
@@ -31,10 +31,9 @@ body {
     border: 2px solid #333;
 }
 
-#add-button {
+#add-button, #chrono-button {
     position: fixed;
     bottom: 20px;
-    right: 20px;
     width: 50px;
     height: 50px;
     font-size: 24px;
@@ -45,6 +44,35 @@ body {
     cursor: pointer;
 }
 
-#add-button:hover {
+#add-button {
+    right: 80px;
+}
+
+#chrono-button {
+    right: 20px;
+}
+
+#add-button:hover, #chrono-button:hover {
     background-color: #0b7dda;
+}
+
+.chrono-mode .square-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.square-name {
+    font-size: 20px;
+    margin-bottom: 4px;
+    text-align: center;
+    width: 100%;
+}
+
+.timer-line {
+    font-size: 16px;
+    min-height: 20px;
 }

@@ -11,10 +11,15 @@ When loading the page, when start with a setup mode:
 5. Click Outside to Save: Clicking outside the square after editing will revert it to a non-editable state.
 
 
-Next to the plus button, there should be a check button (V), when clicking on that we are on the chrono mode:
+Next to the plus button, there should be a check button, when clicking on that we switch on the chrono mode. To go back in the setup mode there should be a gear button. Here are the requirement of the chrono mode:
 1. The square are now with two line, the text we setup before is the name of that square and is a bit bigger and bellow there is a chrono mm:ss at 00:00.
-2. When we click on a square the chrono start counting
+2. When we click on a square the chrono start counting secconds and minutes.
 3. when clicking a second time a new line will be added with another chrono starting while the above one will contine
-4. clicking a thrid time will reset and start the second chrono
-5. double click will reset all the chrono of the square to put it back to the initial state
+4. clicking a thrid time will reset and start the second chrono while keeping the first one running
+5. double click will reset the square to the inital state, with only one chrono with the value 00:00
+6. in that mode the text on the square are read only
 
+
+
+TODO:
+- when double click in the setup mode, select the text so the user can directly type and overwrite the default value
