@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (isChronoMode) {
             chronoButton.textContent = '⚙️';
+            addButton.style.display = 'none';
             // Switch to chrono mode
             const squares = document.querySelectorAll('.square');
             squares.forEach(square => {
@@ -57,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         } else {
             chronoButton.textContent = '✓';
+            addButton.style.display = 'block';
             // Switch back to setup mode
             const squares = document.querySelectorAll('.square');
             squares.forEach(square => {
@@ -147,23 +149,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const contentDiv = this.querySelector('.square-content');
             const nameDiv = contentDiv.querySelector('.square-name');
             
-            // Click 1: Start first timer
+            // Click 1: Start first timer (on the existing line)
             if (timers.length === 0) {
                 startTimer(contentDiv, nameDiv);
-                timers.push({ div: createTimerDisplay(), startTime: Date.now() });
-                updateTimer(timers[0]);
+                timers.push({ div: contentDiv.querySelector('.timer-line'), startTime: Date.now() });
             }
-            // Click 2: Add second timer
+            // Click 2: Add second timer below
             else if (timers.length === 1) {
                 currentTimerIndex = 1;
                 timers.push({ div: createTimerDisplay(), startTime: Date.now() });
-                updateTimer(timers[1]);
             }
             // Click 3: Reset second timer
             else if (timers.length === 2) {
                 currentTimerIndex = 1;
                 timers[1].startTime = Date.now();
-                updateTimer(timers[1]);
             }
         });
 

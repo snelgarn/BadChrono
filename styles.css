@@ -13,8 +13,8 @@ body {
 
 .square {
     position: absolute;
-    width: 100px;
-    height: 60px;
+    width: 120px;
+    height: 90px;
     background-color: #4CAF50;
     color: white;
     display: flex;
