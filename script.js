@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Create inner structure for chrono mode
         square.innerHTML = '';
         square.classList.add('chrono-mode');
+        square.style.cursor = 'default';
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'square-content';
@@ -171,11 +172,22 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Reset to initial state with one timer at 00:00
             const contentDiv = this.querySelector('.square-content');
-            while (contentDiv.children.length > 1) {
+            
+            // Remove all timers except the first one
+            while (contentDiv.children.length > 2) {
                 contentDiv.removeChild(contentDiv.lastChild);
             }
+            
+            // Reset the timer display to 00:00
+            const timerDiv = contentDiv.querySelector('.timer-line');
+            if (timerDiv) {
+                timerDiv.textContent = '00:00';
+            }
+            
             timers = [];
             currentTimerIndex = 0;
+            // Reset background color to green
+            square.style.backgroundColor = '#4CAF50';
         });
 
         // Start updating all timers
@@ -216,6 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
         square.innerHTML = originalText;
         square.classList.remove('chrono-mode');
         square.style.backgroundColor = '#4CAF50';
+        square.style.cursor = 'move';
         
         // Re-enable editing
         square.addEventListener('dblclick', function() {

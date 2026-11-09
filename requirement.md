@@ -7,7 +7,7 @@ When loading the page, when start with a setup mode:
 1. Bottom Right Button: A "+" button positioned at the bottom right of the screen.
 2. Adding Squares: Clicking the "+" button adds a new square with an incrementing number (starting from 1).
 3. Draggable Squares: Each square should be draggable, allowing users to move it freely on the page.
-4. Double-Click Editing: Double-clicking a square will make its number editable (like an input field).
+4. Double-Click Editing: Double-clicking a square will make its number editable (like an input field) and select it so the so the user can directly type and overwrite the default value.
 5. Click Outside to Save: Clicking outside the square after editing will revert it to a non-editable state.
 
 
@@ -17,9 +17,9 @@ Next to the plus button, there should be a check button, when clicking on that w
 3. when clicking a second time a new line will be added with another chrono starting while the above one will contine
 4. clicking a thrid time will reset and start the second chrono while keeping the first one running
 5. double click will reset the square to the inital state, with only one chrono with the value 00:00
-6. in that mode the text on the square are read only
+6. in that mode the text on the square are read only and the cursor hovering it should not be of type "move" 
 
 
 
 TODO:
-- when double click in the setup mode, select the text so the user can directly type and overwrite the default value
+- refactor the code to use the nomination square title for the text on the square
