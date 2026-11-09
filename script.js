@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Convert a square to chrono mode
     function convertToChronoSquare(square) {
-        const originalText = square.textContent.trim();
+        const title = square.textContent.trim();
         
         // Create inner structure for chrono mode
         square.innerHTML = '';
@@ -125,20 +125,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const contentDiv = document.createElement('div');
         contentDiv.className = 'square-content';
         
-        const nameDiv = document.createElement('div');
-        nameDiv.className = 'square-name';
-        nameDiv.textContent = originalText;
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'square-title';
+        titleDiv.textContent = title;
         
         const timerDiv = document.createElement('div');
         timerDiv.className = 'timer-line';
         timerDiv.textContent = '00:00';
         
-        contentDiv.appendChild(nameDiv);
+        contentDiv.appendChild(titleDiv);
         contentDiv.appendChild(timerDiv);
         square.appendChild(contentDiv);
         
-        // Store original text for reference
-        square.dataset.originalText = originalText;
+        // Store the title for reference
+        square.dataset.title = title;
         
         // Add click handler for chrono functionality
         let timers = [];
@@ -148,11 +148,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!isChronoMode) return;
             
             const contentDiv = this.querySelector('.square-content');
-            const nameDiv = contentDiv.querySelector('.square-name');
+            const titleDiv = contentDiv.querySelector('.square-title');
             
             // Click 1: Start first timer (on the existing line)
             if (timers.length === 0) {
-                startTimer(contentDiv, nameDiv);
+                startTimer(contentDiv, titleDiv);
                 timers.push({ div: contentDiv.querySelector('.timer-line'), startTime: Date.now() });
             }
             // Click 2: Add second timer below
@@ -199,10 +199,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 1000);
 
-        function startTimer(contentDiv, nameDiv) {
+        function startTimer(contentDiv, titleDiv) {
             // Change appearance to indicate active chrono mode
             square.style.backgroundColor = '#2196F3';
-            nameDiv.style.fontSize = '18px';
+            titleDiv.style.fontSize = '18px';
         }
 
         function createTimerDisplay() {
@@ -223,9 +223,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Convert a square back to setup mode
     function convertToSetupSquare(square) {
-        const originalText = square.dataset.originalText || squareCount++;
+        const title = square.dataset.title || squareCount++;
         
-        square.innerHTML = originalText;
+        square.innerHTML = title;
         square.classList.remove('chrono-mode');
         square.style.backgroundColor = '#4CAF50';
         square.style.cursor = 'move';

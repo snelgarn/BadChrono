@@ -22,4 +22,4 @@ Next to the plus button, there should be a check button, when clicking on that w
 
 
 TODO:
-- refactor the code to use the nomination square title for the text on the square
+- [x] refactor the code to use the "square-title" for the text on the square instead of "square-name" and "title" instead of "originalText"
