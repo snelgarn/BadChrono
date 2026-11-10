@@ -5,6 +5,37 @@ document.addEventListener('DOMContentLoaded', function() {
     let squareCount = 0;
     let isChronoMode = false;
 
+    const COLORS = {
+        green: '#4CAF50',
+        blue: '#2196F3',
+        orange: '#FF9800',
+        red: '#F44336'
+    };
+    const ORANGE_AFTER_MS = 30 * 1000;
+    const RED_AFTER_MS = 60 * 1000;
+
+    function formatTime(elapsedMs) {
+        const total = Math.floor(elapsedMs / 1000);
+        const minutes = Math.floor(total / 60).toString().padStart(2, '0');
+        const seconds = (total % 60).toString().padStart(2, '0');
+        return `${minutes}:${seconds}`;
+    }
+
+    // Color a running timer should have while its alarm is active
+    function alarmColor(elapsedMs) {
+        if (elapsedMs >= RED_AFTER_MS) return 'red';
+        if (elapsedMs >= ORANGE_AFTER_MS) return 'orange';
+        return 'blue';
+    }
+
+    function applyColor(square, name) {
+        square.style.backgroundColor = COLORS[name];
+    }
+
+    function setAlarmEmoji(square, on) {
+        square.classList.toggle('alarm', on);
+    }
+
     // Initialize drag functionality for squares
     function initDrag(square) {
         let isDragging = false;
@@ -37,52 +68,93 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Add new square when clicking the "+" button
-    addButton.addEventListener('click', function() {
-        if (isChronoMode) return; // Disable adding squares in chrono mode
-        squareCount++;
-        createSquare(squareCount);
-    });
-
-    // Toggle between setup and chrono modes
-    chronoButton.addEventListener('click', function() {
-        isChronoMode = !isChronoMode;
-        
-        if (isChronoMode) {
-            chronoButton.textContent = '⚙️';
-            addButton.style.display = 'none';
-            // Switch to chrono mode
-            const squares = document.querySelectorAll('.square');
-            squares.forEach(square => {
-                convertToChronoSquare(square);
-            });
-        } else {
-            chronoButton.textContent = '✓';
-            addButton.style.display = 'block';
-            // Switch back to setup mode
-            const squares = document.querySelectorAll('.square');
-            squares.forEach(square => {
-                convertToSetupSquare(square);
-            });
-        }
-    });
-
     // Create a new square with the given number
     function createSquare(number) {
         const square = document.createElement('div');
         square.className = 'square';
-        square.textContent = number;
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'square-content';
+
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'square-title';
+        titleDiv.textContent = number;
+
+        const timerDiv = document.createElement('div');
+        timerDiv.className = 'timer-line';
+        timerDiv.textContent = '00:00';
+
+        contentDiv.appendChild(titleDiv);
+        contentDiv.appendChild(timerDiv);
+        square.appendChild(contentDiv);
+
+        const emojiSpan = document.createElement('span');
+        emojiSpan.className = 'alarm-emoji';
+        emojiSpan.textContent = '⏰';
+        square.appendChild(emojiSpan);
+
+        square.dataset.title = String(number);
+
+        // Phases:
+        //  0 idle: timer 1 at 00:00, green background
+        //  1 timer 1 running (total time), alarm active on it
+        //  2 timer 1 running, alarm disabled
+        //  3 timer 2 running, alarm active on it
+        //  4 timer 2 stopped at 00:00, alarm disabled
+        square._chrono = {
+            phase: 0,
+            titleDiv,
+            contentDiv,
+            emojiSpan,
+            timer1: { div: timerDiv, startTime: null },
+            timer2: null
+        };
 
         // Position the square randomly within the container
         const randomX = Math.floor(Math.random() * (window.innerWidth - 100));
         const randomY = Math.floor(Math.random() * (window.innerHeight - 200));
-        
         square.style.transform = `translate(${randomX}px, ${randomY}px)`;
 
-        // Add double-click event for editing in setup mode
+        // Click: chrono phase machine (only active in chrono mode)
+        square.addEventListener('click', function() {
+            if (!isChronoMode) return;
+            const s = square._chrono;
+
+            if (s.phase === 0) {
+                // First click: start timer 1 (total time), activate the alarm
+                s.timer1.startTime = Date.now();
+                s.phase = 1;
+            } else if (s.phase === 1) {
+                // Alarm active on timer 1: disable it, timer 1 keeps running
+                s.phase = 2;
+            } else if (s.phase === 2) {
+                // Add timer 2 below, start it directly, re-activate the alarm
+                const div = document.createElement('div');
+                div.className = 'timer-line';
+                div.textContent = '00:00';
+                s.contentDiv.appendChild(div);
+                s.timer2 = { div, startTime: Date.now() };
+                s.phase = 3;
+            } else if (s.phase === 3) {
+                // Alarm active on timer 2: disable it and reset timer 2
+                s.phase = 4;
+                s.timer2.startTime = null;
+                s.timer2.div.textContent = '00:00';
+            } else {
+                // Restart timer 2, re-activate the alarm (loop)
+                s.timer2.startTime = Date.now();
+                s.phase = 3;
+            }
+            setAlarmEmoji(square, s.phase === 1 || s.phase === 3);
+            applyColor(square, 'blue');
+        });
+
+        // Double-click: reset in chrono mode, edit the title in setup mode
         square.addEventListener('dblclick', function() {
-            if (!isChronoMode) {
-                makeEditable(square);
+            if (isChronoMode) {
+                resetChrono(square);
+            } else {
+                editTitle(square);
             }
         });
 
@@ -90,151 +162,96 @@ document.addEventListener('DOMContentLoaded', function() {
         container.appendChild(square);
     }
 
-    // Make a square editable on double-click (setup mode)
-    function makeEditable(square) {
-        square.classList.add('editable');
-        square.contentEditable = true;
-        square.focus();
-        
+    // Reset a square to its initial chrono state
+    function resetChrono(square) {
+        const s = square._chrono;
+        while (s.contentDiv.children.length > 2) {
+            s.contentDiv.removeChild(s.contentDiv.lastChild);
+        }
+        s.timer1.startTime = null;
+        s.timer1.div.textContent = '00:00';
+        s.timer2 = null;
+        s.phase = 0;
+        setAlarmEmoji(square, false);
+        applyColor(square, 'green');
+    }
+
+    // Make the square title editable (setup mode)
+    function editTitle(square) {
+        const titleDiv = square._chrono.titleDiv;
+        titleDiv.classList.add('editable');
+        titleDiv.contentEditable = true;
+        titleDiv.focus();
+
         // Select all text when entering edit mode
         const range = document.createRange();
-        range.selectNodeContents(square);
+        range.selectNodeContents(titleDiv);
         const selection = window.getSelection();
         selection.removeAllRanges();
         selection.addRange(range);
 
-        // Remove editable state when clicking outside
+        // Save when clicking outside the title
         document.addEventListener('click', function handleOutsideClick(event) {
-            if (event.target !== square && !square.contains(event.target)) {
-                square.classList.remove('editable');
-                square.contentEditable = false;
+            if (event.target !== titleDiv && !titleDiv.contains(event.target)) {
+                titleDiv.classList.remove('editable');
+                titleDiv.contentEditable = false;
+                square.dataset.title = titleDiv.textContent.trim();
                 document.removeEventListener('click', handleOutsideClick);
             }
         }, { once: true });
     }
 
-    // Convert a square to chrono mode
-    function convertToChronoSquare(square) {
-        const title = square.textContent.trim();
-        
-        // Create inner structure for chrono mode
-        square.innerHTML = '';
-        square.classList.add('chrono-mode');
-        square.style.cursor = 'default';
-        
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'square-content';
-        
-        const titleDiv = document.createElement('div');
-        titleDiv.className = 'square-title';
-        titleDiv.textContent = title;
-        
-        const timerDiv = document.createElement('div');
-        timerDiv.className = 'timer-line';
-        timerDiv.textContent = '00:00';
-        
-        contentDiv.appendChild(titleDiv);
-        contentDiv.appendChild(timerDiv);
-        square.appendChild(contentDiv);
-        
-        // Store the title for reference
-        square.dataset.title = title;
-        
-        // Add click handler for chrono functionality
-        let timers = [];
-        let currentTimerIndex = 0;
-        
-        square.addEventListener('click', function() {
-            if (!isChronoMode) return;
-            
-            const contentDiv = this.querySelector('.square-content');
-            const titleDiv = contentDiv.querySelector('.square-title');
-            
-            // Click 1: Start first timer (on the existing line)
-            if (timers.length === 0) {
-                startTimer(contentDiv, titleDiv);
-                timers.push({ div: contentDiv.querySelector('.timer-line'), startTime: Date.now() });
-            }
-            // Click 2: Add second timer below
-            else if (timers.length === 1) {
-                currentTimerIndex = 1;
-                timers.push({ div: createTimerDisplay(), startTime: Date.now() });
-            }
-            // Click 3: Reset second timer
-            else if (timers.length === 2) {
-                currentTimerIndex = 1;
-                timers[1].startTime = Date.now();
-            }
-        });
+    // Update one square's timer lines and alarm color
+    function tickSquare(square) {
+        const s = square._chrono;
+        if (s.phase === 0) return;
+        const now = Date.now();
 
-        square.addEventListener('dblclick', function() {
-            if (!isChronoMode) return;
-            
-            // Reset to initial state with one timer at 00:00
-            const contentDiv = this.querySelector('.square-content');
-            
-            // Remove all timers except the first one
-            while (contentDiv.children.length > 2) {
-                contentDiv.removeChild(contentDiv.lastChild);
-            }
-            
-            // Reset the timer display to 00:00
-            const timerDiv = contentDiv.querySelector('.timer-line');
-            if (timerDiv) {
-                timerDiv.textContent = '00:00';
-            }
-            
-            timers = [];
-            currentTimerIndex = 0;
-            // Reset background color to green
-            square.style.backgroundColor = '#4CAF50';
-        });
-
-        // Start updating all timers
-        setInterval(function() {
-            if (!isChronoMode || timers.length === 0) return;
-            
-            for (let i = 0; i < timers.length; i++) {
-                updateTimer(timers[i]);
-            }
-        }, 1000);
-
-        function startTimer(contentDiv, titleDiv) {
-            // Change appearance to indicate active chrono mode
-            square.style.backgroundColor = '#2196F3';
-            titleDiv.style.fontSize = '18px';
+        if (s.timer1.startTime !== null) {
+            s.timer1.div.textContent = formatTime(now - s.timer1.startTime);
+        }
+        if (s.timer2 && s.timer2.startTime !== null) {
+            s.timer2.div.textContent = formatTime(now - s.timer2.startTime);
         }
 
-        function createTimerDisplay() {
-            const timerDiv = document.createElement('div');
-            timerDiv.className = 'timer-line';
-            timerDiv.textContent = '00:00';
-            contentDiv.appendChild(timerDiv);
-            return timerDiv;
-        }
-
-        function updateTimer(timer) {
-            const elapsed = Math.floor((Date.now() - timer.startTime) / 1000);
-            const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
-            const seconds = (elapsed % 60).toString().padStart(2, '0');
-            timer.div.textContent = `${minutes}:${seconds}`;
+        // Only the active alarm drives the background color
+        if (s.phase === 1) {
+            applyColor(square, alarmColor(now - s.timer1.startTime));
+        } else if (s.phase === 3) {
+            applyColor(square, alarmColor(now - s.timer2.startTime));
         }
     }
 
-    // Convert a square back to setup mode
-    function convertToSetupSquare(square) {
-        const title = square.dataset.title || squareCount++;
-        
-        square.innerHTML = title;
-        square.classList.remove('chrono-mode');
-        square.style.backgroundColor = '#4CAF50';
-        square.style.cursor = 'move';
-        
-        // Re-enable editing
-        square.addEventListener('dblclick', function() {
-            if (!isChronoMode) {
-                makeEditable(square);
-            }
-        });
-    }
+    // Global tick: keeps every square's state running, in both modes
+    setInterval(function() {
+        document.querySelectorAll('.square').forEach(tickSquare);
+    }, 500);
+
+    // Add new square when clicking the "+" button
+    addButton.addEventListener('click', function() {
+        if (isChronoMode) return; // Disable adding squares in chrono mode
+        squareCount++;
+        createSquare(squareCount);
+    });
+
+    // Toggle between setup and chrono modes (square state is preserved)
+    chronoButton.addEventListener('click', function() {
+        isChronoMode = !isChronoMode;
+
+        if (isChronoMode) {
+            chronoButton.textContent = '⚙️';
+            addButton.style.display = 'none';
+            document.querySelectorAll('.square').forEach(square => {
+                square.classList.add('chrono-mode');
+                square.style.cursor = 'default';
+            });
+        } else {
+            chronoButton.textContent = '✓';
+            addButton.style.display = 'block';
+            document.querySelectorAll('.square').forEach(square => {
+                square.classList.remove('chrono-mode');
+                square.style.cursor = 'move';
+            });
+        }
+    });
 });

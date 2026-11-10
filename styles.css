@@ -26,10 +26,25 @@ body {
     border-radius: 8px;
 }
 
-.square.editable {
+/* Alarm indicator in the top right corner of the square */
+.square .alarm-emoji {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    font-size: 16px;
+    display: none;
+    pointer-events: none;
+}
+
+.square.alarm .alarm-emoji {
+    display: block;
+}
+
+/* Editable title highlight (setup mode) */
+/* .editable {
     background-color: #FFC107;
     border: 2px solid #333;
-}
+} */
 
 #add-button, #chrono-button {
     position: fixed;
@@ -56,7 +71,7 @@ body {
     background-color: #0b7dda;
 }
 
-.chrono-mode .square-content {
+.square-content {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -72,7 +87,17 @@ body {
     width: 100%;
 }
 
+/* Setup mode: bigger title, timer lines hidden */
+.square:not(.chrono-mode) .square-title {
+    font-size: 24px;
+}
+
 .timer-line {
     font-size: 16px;
     min-height: 20px;
+    display: none;
+}
+
+.chrono-mode .timer-line {
+    display: block;
 }
