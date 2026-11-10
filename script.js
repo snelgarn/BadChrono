@@ -36,12 +36,12 @@ document.addEventListener('DOMContentLoaded', function() {
         square.classList.toggle('alarm', on);
     }
 
-    // Initialize drag functionality for squares
+    // Initialize drag functionality for squares (mouse + touch via pointer events)
     function initDrag(square) {
         let isDragging = false;
         let currentX, currentY;
         
-        square.addEventListener('mousedown', function(e) {
+        square.addEventListener('pointerdown', function(e) {
             if (isChronoMode) return; // Disable dragging in chrono mode
             isDragging = true;
             const rect = square.getBoundingClientRect();
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
             currentY = e.clientY - rect.top;
         });
 
-        document.addEventListener('mousemove', function(e) {
+        document.addEventListener('pointermove', function(e) {
             if (!isDragging) return;
             
             const containerRect = container.getBoundingClientRect();
@@ -63,7 +63,11 @@ document.addEventListener('DOMContentLoaded', function() {
             square.style.transform = `translate(${x}px, ${y}px)`;
         });
 
-        document.addEventListener('mouseup', function() {
+        document.addEventListener('pointerup', function() {
+            isDragging = false;
+        });
+
+        document.addEventListener('pointercancel', function() {
             isDragging = false;
         });
     }

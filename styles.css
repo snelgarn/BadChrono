@@ -23,6 +23,8 @@ body {
     font-size: 24px;
     cursor: move;
     user-select: none;
+    /* Let the page handle touch gestures, not the browser (scroll/zoom) */
+    touch-action: none;
     border-radius: 8px;
 }
 
