@@ -183,7 +183,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Make the square title editable (setup mode)
     function editTitle(square) {
         const titleDiv = square._chrono.titleDiv;
-        titleDiv.classList.add('editable');
         titleDiv.contentEditable = true;
         titleDiv.focus();
 
@@ -197,7 +196,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Save when clicking outside the title
         document.addEventListener('click', function handleOutsideClick(event) {
             if (event.target !== titleDiv && !titleDiv.contains(event.target)) {
-                titleDiv.classList.remove('editable');
                 titleDiv.contentEditable = false;
                 square.dataset.title = titleDiv.textContent.trim();
                 document.removeEventListener('click', handleOutsideClick);

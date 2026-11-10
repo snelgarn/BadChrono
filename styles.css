@@ -42,12 +42,6 @@ body {
     display: block;
 }
 
-/* Editable title highlight (setup mode) */
-/* .editable {
-    background-color: #FFC107;
-    border: 2px solid #333;
-} */
-
 #add-button, #chrono-button {
     position: fixed;
     bottom: 20px;
