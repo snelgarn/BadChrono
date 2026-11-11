@@ -37,6 +37,12 @@ body {
     user-select: none;
     touch-action: none;
     border-radius: 0.8rem;
+    border: 0.4rem dashed white;
+    box-sizing: border-box;
+}
+
+.square.chrono-mode {
+    border: 0.4rem solid white;
 }
 
 .square .alarm-emoji {
