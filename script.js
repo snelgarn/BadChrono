@@ -42,36 +42,55 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize drag functionality for squares (mouse + touch via pointer events)
     function initDrag(square) {
         let isDragging = false;
-        let currentX, currentY;
+        let startX, startY;
+        let startRectLeft, startRectTop;
         
         square.addEventListener('pointerdown', function(e) {
-            if (isChronoMode) return; // Disable dragging in chrono mode
-            isDragging = true;
+            if (isChronoMode) return;
+            
             const rect = square.getBoundingClientRect();
-            currentX = e.clientX - rect.left;
-            currentY = e.clientY - rect.top;
+            startX = e.clientX;
+            startY = e.clientY;
+            startRectLeft = rect.left;
+            startRectTop = rect.top;
+
+            isDragging = true;
+            square.setPointerCapture(e.pointerId);
         });
 
         document.addEventListener('pointermove', function(e) {
             if (!isDragging) return;
             
             const containerRect = container.getBoundingClientRect();
-            let x = e.clientX - currentX - containerRect.left;
-            let y = e.clientY - currentY - containerRect.top;
             
-            // Constrain to container
-            x = Math.max(0, Math.min(x, containerRect.width - square.offsetWidth));
-            y = Math.max(0, Math.min(y, containerRect.height - square.offsetHeight));
+            // Calculate delta from the start position
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
             
-            square.style.transform = `translate(${x}px, ${y}px)`;
+            // Calculate new position based on initial rect + mouse delta
+            let targetX = startRectLeft + dx - containerRect.left;
+            let targetY = startRectTop + dy - containerRect.top;
+            
+            // Constrain within container
+            targetX = Math.max(0, Math.min(targetX, containerRect.width - square.offsetWidth));
+            targetY = Math.max(0, Math.min(targetY, containerRect.height - square.offsetHeight));
+            
+            square.style.transform = `translate(${targetX}px, ${targetY}px)`;
         });
 
-        document.addEventListener('pointerup', function() {
+        document.addEventListener('pointerup', function(e) {
+            if (!isDragging) return;
             isDragging = false;
+            if (square.hasPointerCapture(e.pointerId)) {
+                square.releasePointerCapture(e.pointerId);
+            }
         });
 
-        document.addEventListener('pointercancel', function() {
+        document.addEventListener('pointercancel', function(e) {
             isDragging = false;
+            if (square.hasPointerCapture(e.pointerId)) {
+                square.releasePointerCapture(e.pointerId);
+            }
         });
     }
 
@@ -118,8 +137,9 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // Position the square randomly within the container
-        const randomX = Math.floor(Math.random() * (window.innerWidth - 100));
-        const randomY = Math.floor(Math.random() * (window.innerHeight - 200));
+        const containerRect = container.getBoundingClientRect();
+        const randomX = Math.floor(Math.random() * (containerRect.width - 150));
+        const randomY = Math.floor(Math.random() * (containerRect.height - 150));
         square.style.transform = `translate(${randomX}px, ${randomY}px)`;
 
         // Click: chrono phase machine (only active in chrono mode)
@@ -228,13 +248,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Global tick: keeps every square's state running, in both modes
-    setInterval(function() {
+    setInterval(() => {
         document.querySelectorAll('.square').forEach(tickSquare);
     }, 500);
 
     // Add new square when clicking the "+" button
     addButton.addEventListener('click', function() {
-        if (isChronoMode) return; // Disable adding squares in chrono mode
+        if (isChronoMode) return;
         squareCount++;
         createSquare(squareCount);
     });
@@ -242,7 +262,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Toggle between setup and chrono modes (square state is preserved)
     chronoButton.addEventListener('click', function() {
         isChronoMode = !isChronoMode;
-
         if (isChronoMode) {
             chronoButton.textContent = '⚙️';
             addButton.style.display = 'none';
@@ -261,24 +280,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Configuration menu functionality
-    configButton.addEventListener('click', function() {
-        if (configMenu.style.display === 'block') {
-            configMenu.style.display = 'none';
-        } else {
-            configMenu.style.display = 'block';
-        }
+    configButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        configMenu.style.display = configMenu.style.display === 'block' ? 'none' : 'block';
     });
 
-    // Close config menu when clicking outside
-    document.addEventListener('click', function(event) {
-        if (!configMenu.contains(event.target) && 
-            !configButton.contains(event.target) &&
-            configMenu.style.display === 'block') {
+    document.addEventListener('click', (e) => {
+        if (!configMenu.contains(e.target) && !configButton.contains(e.target)) {
             configMenu.style.display = 'none';
         }
     });
 
-    // Update settings when they change
+    // Zoom Scaling: Change the root font-size to scale all rem units
+    document.getElementById('zoom-level').addEventListener('input', function() {
+        ZOOM_LEVEL = parseFloat(this.value);
+        document.documentElement.style.fontSize = `${10 * ZOOM_LEVEL}px`;
+    });
+
     document.getElementById('orange-alarm').addEventListener('input', function() {
         ORANGE_AFTER_MS = parseInt(this.value) * 1000;
     });
@@ -286,9 +304,4 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('red-alarm').addEventListener('input', function() {
         RED_AFTER_MS = parseInt(this.value) * 1000;
     });
-
-    // Initialize zoom level
-    
-    // Ensure config menu is hidden initially
-    configMenu.style.display = 'none';
 });

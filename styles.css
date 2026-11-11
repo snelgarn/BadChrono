@@ -1,3 +1,7 @@
+:root {
+    font-size: 10px;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -8,6 +12,11 @@ body {
     height: 100vh;
 }
 
+#container-wrapper {
+    width: 100%;
+    height: 100%;
+}
+
 #container {
     position: relative;
     width: 100%;
@@ -16,27 +25,25 @@ body {
 
 .square {
     position: absolute;
-    width: 120px;
-    height: 90px;
+    width: 12rem;
+    height: 9rem;
     background-color: #4CAF50;
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 24px;
+    font-size: 2.4rem;
     cursor: move;
     user-select: none;
-    /* Let the page handle touch gestures, not the browser (scroll/zoom) */
     touch-action: none;
-    border-radius: 8px;
+    border-radius: 0.8rem;
 }
 
-/* Alarm indicator in the top right corner of the square */
 .square .alarm-emoji {
     position: absolute;
-    top: 4px;
-    right: 6px;
-    font-size: 16px;
+    top: 0.4rem;
+    right: 0.6rem;
+    font-size: 1.6rem;
     display: none;
     pointer-events: none;
 }
@@ -47,27 +54,28 @@ body {
 
 #add-button, #chrono-button, #config-button {
     position: fixed;
-    bottom: 20px;
-    width: 50px;
-    height: 50px;
-    font-size: 24px;
+    bottom: 2rem;
+    width: 5rem;
+    height: 5rem;
+    font-size: 2.4rem;
     background-color: #2196F3;
     color: white;
     border: none;
     border-radius: 50%;
     cursor: pointer;
+    z-index: 1000;
 }
 
 #add-button {
-    right: 80px;
+    right: 8rem;
 }
 
 #chrono-button {
-    right: 20px;
+    right: 2rem;
 }
 
 #config-button {
-    left: 20px;
+    left: 2rem;
 }
 
 #add-button:hover, #chrono-button:hover, #config-button:hover {
@@ -84,20 +92,19 @@ body {
 }
 
 .square-title {
-    font-size: 20px;
-    margin-bottom: 4px;
+    font-size: 2rem;
+    margin-bottom: 0.4rem;
     text-align: center;
     width: 100%;
 }
 
-/* Setup mode: bigger title, timer lines hidden */
 .square:not(.chrono-mode) .square-title {
-    font-size: 24px;
+    font-size: 2.4rem;
 }
 
 .timer-line {
-    font-size: 16px;
-    min-height: 20px;
+    font-size: 1.6rem;
+    min-height: 2rem;
     display: none;
 }
 
@@ -108,39 +115,40 @@ body {
 /* Configuration menu */
 #config-menu {
     position: fixed;
-    bottom: 80px;
-    left: 20px;
-    width: 250px;
+    bottom: 8rem;
+    left: 2rem;
+    width: 25rem;
     background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    padding: 15px;
-    z-index: 1000;
+    border-radius: 1rem;
+    box-shadow: 0 0.4rem 1.2rem rgba(0,0,0,0.15);
+    padding: 1.5rem;
+    z-index: 1001;
     display: none;
 }
 
 .config-item {
-    margin-bottom: 15px;
+    margin-bottom: 1.5rem;
 }
 
 .config-label {
     font-weight: bold;
-    margin-bottom: 5px;
+    margin-bottom: 0.5rem;
     display: block;
+    color: #333;
 }
 
 .config-input {
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 0.8rem;
+    border: 0.1rem solid #ccc;
+    border-radius: 0.4rem;
     box-sizing: border-box;
 }
 
 .config-title {
-    font-size: 18px;
+    font-size: 1.8rem;
     margin-top: 0;
-    margin-bottom: 15px;
+    margin-bottom: 1.5rem;
     text-align: center;
     color: #333;
 }
