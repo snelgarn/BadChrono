@@ -85,9 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Fallback to default
-            const defM = Math.floor(defaultValue / 60/1000).toString().padStart(2, '0');
-            const defS = (defaultValue/1000 % 60).toString().padStart(2, '0');
-            this.value = `${defM}:${defS}`;
+            this.value = formatTime(defaultValue);
             setter(defaultValue);
         });
     }
@@ -185,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const emojiSpan = document.createElement('img');
         emojiSpan.className = 'alarm-emoji';
-        emojiSpan.src = 'images/notification-svgrepo-com.svg';
+        emojiSpan.src = 'src/images/notification-svgrepo-com.svg';
         square.appendChild(emojiSpan);
 
         square.dataset.title = String(number);
@@ -333,14 +331,14 @@ document.addEventListener('DOMContentLoaded', function() {
     chronoButton.addEventListener('click', function() {
         isChronoMode = !isChronoMode;
         if (isChronoMode) {
-            chronoButton.innerHTML = '<img src="images/pencil-svgrepo-com.svg" alt="edit" class="config-button-icon">';
+            chronoButton.innerHTML = '<img src="src/images/pencil-svgrepo-com.svg" alt="edit" class="config-button-icon">';
             addButton.style.display = 'none';
             document.querySelectorAll('.square').forEach(square => {
                 square.classList.add('chrono-mode');
                 square.style.cursor = 'default';
             });
         } else {
-            chronoButton.innerHTML = '<img src="images/check-svgrepo-com.svg" alt="check" class="config-button-icon">';
+            chronoButton.innerHTML = '<img src="src/images/check-svgrepo-com.svg" alt="check" class="config-button-icon">';
             addButton.style.display = 'flex';
             document.querySelectorAll('.square').forEach(square => {
                 square.classList.remove('chrono-mode');
