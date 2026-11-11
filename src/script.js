@@ -13,8 +13,10 @@ document.addEventListener('DOMContentLoaded', function() {
         orange: '#FF9800',
         red: '#F44336'
     };
-    let ORANGE_AFTER_MS = 30 * 1000;
-    let RED_AFTER_MS = 60 * 1000;
+    const ORANGE_AFTER_MS_DEFAULT = 30 * 1000;
+    const RED_AFTER_MS_DEFAULT = 60 * 1000;
+    let ORANGE_AFTER_MS = ORANGE_AFTER_MS_DEFAULT;
+    let RED_AFTER_MS = RED_AFTER_MS_DEFAULT;
     let ZOOM_LEVEL = 1;
 
     function formatTime(elapsedMs) {
@@ -22,6 +24,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const minutes = Math.floor(total / 60).toString().padStart(2, '0');
         const seconds = (total % 60).toString().padStart(2, '0');
         return `${minutes}:${seconds}`;
+    }
+
+    function parseTime(timeStr) {
+        if (!timeStr) return null;
+        const parts = timeStr.split(':');
+        if (parts.length !== 2) return null;
+        const minutes = parseInt(parts[0], 10);
+        const seconds = parseInt(parts[1], 10);
+        if (isNaN(minutes) || isNaN(seconds)) return null;
+        return (minutes * 60) + seconds;
+    }
+
+    function setupAlarmInput(id, setter, defaultValue) {
+        const element = document.getElementById(id);
+        if (!element) return;
+        element.addEventListener('input', function() {
+            const seconds = parseTime(this.value);
+            if (seconds !== null) {
+                setter(seconds * 1000);
+            } else if (this.value === "") {
+                setter(defaultValue);
+            }
+        });
     }
 
     // Color a running timer should have while its alarm is active
@@ -87,6 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         document.addEventListener('pointercancel', function(e) {
+            if (!isDragging) return;
             isDragging = false;
             if (square.hasPointerCapture(e.pointerId)) {
                 square.releasePointerCapture(e.pointerId);
@@ -297,11 +323,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.documentElement.style.fontSize = `${10 * ZOOM_LEVEL}px`;
     });
 
-    document.getElementById('orange-alarm').addEventListener('input', function() {
-        ORANGE_AFTER_MS = parseInt(this.value) * 1000;
-    });
-
-    document.getElementById('red-alarm').addEventListener('input', function() {
-        RED_AFTER_MS = parseInt(this.value) * 1000;
-    });
+    setupAlarmInput('orange-alarm', val => ORANGE_AFTER_MS = val, ORANGE_AFTER_MS_DEFAULT);
+    setupAlarmInput('red-alarm', val => RED_AFTER_MS = val, RED_AFTER_MS_DEFAULT);
 });
