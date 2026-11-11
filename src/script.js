@@ -39,13 +39,56 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupAlarmInput(id, setter, defaultValue) {
         const element = document.getElementById(id);
         if (!element) return;
-        element.addEventListener('input', function() {
-            const seconds = parseTime(this.value);
-            if (seconds !== null) {
-                setter(seconds * 1000);
-            } else if (this.value === "") {
-                setter(defaultValue);
+
+        let prev = '';
+
+        function format(raw) {
+            let min = '', sec = '', inSeconds = false;
+            for (const ch of raw) {
+                if (ch === ':') {
+                    if (!inSeconds) {
+                        min = min.padStart(2, '0');
+                        inSeconds = true;
+                    }
+                    continue;
+                }
+                if (!/\d/.test(ch)) continue;
+
+                if (!inSeconds) {
+                    min += (min === '' && ch > '5') ? '0' + ch : ch;
+                    if (min.length === 2) inSeconds = true;
+                } else if (sec.length < 2) {
+                    sec += (sec === '' && ch > '5') ? '0' + ch : ch;
+                }
             }
+            const showColon = inSeconds && (sec !== '' || raw.includes(':'));
+            return showColon ? min + ':' + sec : min;
+        }
+
+        element.addEventListener('input', (e) => {
+            const raw = element.value;
+            const colonDeleted = e.inputType.startsWith('delete') && prev.includes(':') && !raw.includes(':');
+            element.value = prev = colonDeleted ? raw.slice(0, 1) : format(raw);
+        });
+
+        element.addEventListener('blur', function() {
+            const val = this.value;
+            const parts = val.split(':');
+
+            if (parts.length === 2) {
+                const mm = parseInt(parts[0], 10);
+                const ss = parseInt(parts[1], 10);
+                if (!isNaN(mm) && !isNaN(ss)) {
+                    setter(mm * 60 + ss);
+                    return;
+                }
+            }
+
+            // Fallback to default
+            const defM = Math.floor(defaultValue / 60/1000).toString().padStart(2, '0');
+            const defS = (defaultValue/1000 % 60).toString().padStart(2, '0');
+            this.value = `${defM}:${defS}`;
+            setter(defaultValue);
         });
     }
 
@@ -243,13 +286,14 @@ document.addEventListener('DOMContentLoaded', function() {
         selection.addRange(range);
 
         // Save when clicking outside the title
-        document.addEventListener('click', function handleOutsideClick(event) {
+        const outsideClickHandler = function(event) {
             if (event.target !== titleDiv && !titleDiv.contains(event.target)) {
                 titleDiv.contentEditable = false;
                 square.dataset.title = titleDiv.textContent.trim();
-                document.removeEventListener('click', handleOutsideClick);
+                document.removeEventListener('click', outsideClickHandler);
             }
-        }, { once: true });
+        };
+        document.addEventListener('click', outsideClickHandler, { once: true });
     }
 
     // Update one square's timer lines and alarm color
