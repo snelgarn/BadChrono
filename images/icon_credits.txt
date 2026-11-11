@@ -1,0 +1,5 @@
+COLLECTION: Nimbus Interface Icons
+LICENSE: MIT License
+AUTHOR: Tienda Nube
+
+link: https://www.svgrepo.com/collection/nimbus-interface-icons/

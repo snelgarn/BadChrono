@@ -114,9 +114,9 @@ document.addEventListener('DOMContentLoaded', function() {
         contentDiv.appendChild(timerDiv);
         square.appendChild(contentDiv);
 
-        const emojiSpan = document.createElement('span');
+        const emojiSpan = document.createElement('img');
         emojiSpan.className = 'alarm-emoji';
-        emojiSpan.textContent = '⏰';
+        emojiSpan.src = 'images/notification-svgrepo-com.svg';
         square.appendChild(emojiSpan);
 
         square.dataset.title = String(number);
@@ -263,15 +263,15 @@ document.addEventListener('DOMContentLoaded', function() {
     chronoButton.addEventListener('click', function() {
         isChronoMode = !isChronoMode;
         if (isChronoMode) {
-            chronoButton.textContent = '⚙️';
+            chronoButton.innerHTML = '<img src="images/pencil-svgrepo-com.svg" alt="edit" class="config-button-icon">';
             addButton.style.display = 'none';
             document.querySelectorAll('.square').forEach(square => {
                 square.classList.add('chrono-mode');
                 square.style.cursor = 'default';
             });
         } else {
-            chronoButton.textContent = '✓';
-            addButton.style.display = 'block';
+            chronoButton.innerHTML = '<img src="images/check-svgrepo-com.svg" alt="check" class="config-button-icon">';
+            addButton.style.display = 'flex';
             document.querySelectorAll('.square').forEach(square => {
                 square.classList.remove('chrono-mode');
                 square.style.cursor = 'move';
