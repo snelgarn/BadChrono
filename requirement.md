@@ -28,3 +28,7 @@ The alarm emoji (⏰) is displayed in the right corner of the square, independen
 8. Clicking again restarts the second timer and re-activates the alarm, looping the behavior of steps 6–8.
 9. Double-click resets the square to its initial state: one timer at 00:00, no ⏰, green background.
 10. In this mode the text on the squares is read only and the cursor hovering them should not be of type "move".
+
+
+TODO:
+- add a configuration menu, activated with a button a the botom left corner of the screen in this menu there should be 3 settings configurable: (the zoom level of the page, the time for the orange alarm and the red alarm). Clicking back to the button close that menu. Updating the value should directly taken into account, there is no save button.

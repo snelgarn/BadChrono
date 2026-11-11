@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('container');
     const addButton = document.getElementById('add-button');
     const chronoButton = document.getElementById('chrono-button');
+    const configButton = document.getElementById('config-button');
+    const configMenu = document.getElementById('config-menu');
     let squareCount = 0;
     let isChronoMode = false;
 
@@ -11,8 +13,9 @@ document.addEventListener('DOMContentLoaded', function() {
         orange: '#FF9800',
         red: '#F44336'
     };
-    const ORANGE_AFTER_MS = 30 * 1000;
-    const RED_AFTER_MS = 60 * 1000;
+    let ORANGE_AFTER_MS = 30 * 1000;
+    let RED_AFTER_MS = 60 * 1000;
+    let ZOOM_LEVEL = 1;
 
     function formatTime(elapsedMs) {
         const total = Math.floor(elapsedMs / 1000);
@@ -256,4 +259,36 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
+    // Configuration menu functionality
+    configButton.addEventListener('click', function() {
+        if (configMenu.style.display === 'block') {
+            configMenu.style.display = 'none';
+        } else {
+            configMenu.style.display = 'block';
+        }
+    });
+
+    // Close config menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!configMenu.contains(event.target) && 
+            !configButton.contains(event.target) &&
+            configMenu.style.display === 'block') {
+            configMenu.style.display = 'none';
+        }
+    });
+
+    // Update settings when they change
+    document.getElementById('orange-alarm').addEventListener('input', function() {
+        ORANGE_AFTER_MS = parseInt(this.value) * 1000;
+    });
+
+    document.getElementById('red-alarm').addEventListener('input', function() {
+        RED_AFTER_MS = parseInt(this.value) * 1000;
+    });
+
+    // Initialize zoom level
+    
+    // Ensure config menu is hidden initially
+    configMenu.style.display = 'none';
 });
