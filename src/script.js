@@ -13,10 +13,10 @@ document.addEventListener('DOMContentLoaded', function() {
         orange: '#FF9800',
         red: '#F44336'
     };
-    const ORANGE_AFTER_MS_DEFAULT = 30 * 1000;
-    const RED_AFTER_MS_DEFAULT = 60 * 1000;
-    let ORANGE_AFTER_MS = ORANGE_AFTER_MS_DEFAULT;
-    let RED_AFTER_MS = RED_AFTER_MS_DEFAULT;
+    const ORANGE_AFTER_DEFAULT = 30;
+    const RED_AFTER_DEFAULT = 60;
+    let ORANGE_AFTER = ORANGE_AFTER_DEFAULT;
+    let RED_AFTER = RED_AFTER_DEFAULT;
     let ZOOM_LEVEL = 1;
 
     function formatTime(elapsedMs) {
@@ -75,25 +75,27 @@ document.addEventListener('DOMContentLoaded', function() {
             const val = this.value;
             const parts = val.split(':');
 
-            if (parts.length === 2) {
+            if (parts.length >= 1) {
                 const mm = parseInt(parts[0], 10);
-                const ss = parseInt(parts[1], 10);
+                const ss = parts.length === 2 ? parseInt(parts[1], 10) : 0;
                 if (!isNaN(mm) && !isNaN(ss)) {
-                    setter(mm * 60 + ss);
+                    const totalSeconds = mm * 60 + ss;
+                    this.value = formatTime(totalSeconds * 1000);
+                    setter(totalSeconds);
                     return;
                 }
             }
 
             // Fallback to default
-            this.value = formatTime(defaultValue);
+            this.value = formatTime(defaultValue * 1000);
             setter(defaultValue);
         });
     }
 
     // Color a running timer should have while its alarm is active
     function alarmColor(elapsedMs) {
-        if (elapsedMs >= RED_AFTER_MS) return 'red';
-        if (elapsedMs >= ORANGE_AFTER_MS) return 'orange';
+        if (elapsedMs >= RED_AFTER * 1000) return 'red';
+        if (elapsedMs >= ORANGE_AFTER * 1000) return 'orange';
         return 'blue';
     }
 
@@ -365,6 +367,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.documentElement.style.fontSize = `${10 * ZOOM_LEVEL}px`;
     });
 
-    setupAlarmInput('orange-alarm', val => ORANGE_AFTER_MS = val, ORANGE_AFTER_MS_DEFAULT);
-    setupAlarmInput('red-alarm', val => RED_AFTER_MS = val, RED_AFTER_MS_DEFAULT);
+    setupAlarmInput('orange-alarm', val => ORANGE_AFTER = val, ORANGE_AFTER_DEFAULT);
+    setupAlarmInput('red-alarm', val => RED_AFTER = val, RED_AFTER_DEFAULT);
 });
